@@ -4,7 +4,9 @@ import com.searcher.app.IndexCrawler;
 import com.searcher.component.Searcher;
 import com.searcher.entity.SearchData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,9 +52,12 @@ public class MainController {
     }
 
     @RequestMapping(value = "/search",  method = { RequestMethod.GET, RequestMethod.POST })
-    public String searchData(@RequestParam(value = "q", required = false) String query, HttpSession session) throws IOException, InterruptedException {
-        List<SearchData> dataList = searcher.searchWord(query);
-        session.setAttribute(SESSION_SEARCH_DATA, dataList.toString());
+    public String searchData(@RequestParam(value = "q", required = false) String query, Model model, HttpSession session) throws IOException, InterruptedException {
+        //TODO pagination
+        if (query != null) {
+            List<SearchData> dataList = searcher.searchWord(query);
+            model.addAttribute(SESSION_SEARCH_DATA, dataList);
+        }
         return "search";
     }
 }
