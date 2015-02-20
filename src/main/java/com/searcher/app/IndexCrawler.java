@@ -7,8 +7,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,7 +23,7 @@ public class IndexCrawler {
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     public void indexPage(String url, int depth, Set<Page> pages) throws IOException, InterruptedException {
-        Set<String> indexedLink = new HashSet<>();
+        Set<String> indexedLink = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
         recursiveIndex(url, depth, pages, indexedLink);
     }
 
