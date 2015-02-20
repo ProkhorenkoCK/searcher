@@ -19,7 +19,6 @@ import static com.searcher.util.Constants.*;
 public class IndexCrawler {
 
     private PageParser pageParser = new PageParser();
-
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     public void indexPage(String url, int depth, Set<Page> pages) throws IOException, InterruptedException {

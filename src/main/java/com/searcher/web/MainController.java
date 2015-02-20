@@ -3,8 +3,8 @@ package com.searcher.web;
 import com.searcher.app.IndexCrawler;
 import com.searcher.component.Searcher;
 import com.searcher.entity.SearchData;
+import com.searcher.service.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +22,8 @@ public class MainController {
 
     @Autowired
     private Searcher searcher;
+    @Autowired
+    private SearchService searchService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String getSearchPage(HttpSession session) {
@@ -52,11 +54,28 @@ public class MainController {
     }
 
     @RequestMapping(value = "/search",  method = { RequestMethod.GET, RequestMethod.POST })
-    public String searchData(@RequestParam(value = "q", required = false) String query, Model model, HttpSession session) throws IOException, InterruptedException {
-        //TODO pagination
+    public String searchData(@RequestParam(value = "q", required = false) String query,
+                             @RequestParam(value = "page", required = false) Integer page,
+                             Model model) throws IOException, InterruptedException {
         if (query != null) {
-            List<SearchData> dataList = searcher.searchWord(query);
-            model.addAttribute(SESSION_SEARCH_DATA, dataList);
+            List<SearchData> searchDataList = searcher.searchWord(query);
+            if (searchDataList != null && searchDataList.size() > ZERO) {
+                int currentPage = 1;
+                if (page != null && page > ZERO) {
+                    currentPage = page;
+                }
+                int recordsPerPage = RECORDS_PER_PAGE;
+                int offset = (currentPage - 1) * recordsPerPage;
+                offset = searchService.getCorrectOffset(searchDataList.size(), offset, recordsPerPage);
+                int noOfRecords = searchDataList.size();
+                int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
+
+                List<SearchData> pageData = searchService.getSearchData(searchDataList, offset, recordsPerPage);
+
+                model.addAttribute(SEARCH_DATA, pageData);
+                model.addAttribute(NO_OF_PAGES, noOfPages);
+                model.addAttribute(CURRENT_PAGE, currentPage);
+            }
         }
         return "search";
     }
