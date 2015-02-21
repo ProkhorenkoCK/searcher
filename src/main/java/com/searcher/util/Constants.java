@@ -14,4 +14,5 @@ public final class Constants {
     public static final String SEARCH_DATA = "searchData";
     public static final String CURRENT_PAGE = "currentPage";
     public static final String NO_OF_PAGES = "noOfPages";
+    public static final String LAST_QUERY = "lastQuery";
 }

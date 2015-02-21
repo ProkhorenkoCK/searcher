@@ -2,6 +2,7 @@ package com.searcher.web;
 
 import com.searcher.app.IndexCrawler;
 import com.searcher.component.Searcher;
+import com.searcher.dao.PageDao;
 import com.searcher.entity.SearchData;
 import com.searcher.service.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import static com.searcher.util.Constants.*;
 public class MainController {
 
     @Autowired
-    private Searcher searcher;
+    private PageDao pageDao;
     @Autowired
     private SearchService searchService;
 
@@ -43,7 +44,7 @@ public class MainController {
         IndexCrawler crawler = new IndexCrawler();
         try {
             if (depth >= ZERO) {
-                crawler.indexPage(url, depth, searcher.getPages());
+                crawler.indexPage(url, depth, pageDao.getPages());
             } else {
                 System.out.println("WARN: depth is less zero " + depth);
             }
@@ -54,12 +55,14 @@ public class MainController {
     }
 
     @RequestMapping(value = "/search",  method = { RequestMethod.GET, RequestMethod.POST })
+    @SuppressWarnings("unchecked")
     public String searchData(@RequestParam(value = "q", required = false) String query,
                              @RequestParam(value = "page", required = false) Integer page,
-                             Model model) {
+                             Model model,
+                             HttpSession session) {
         try {
             if (query != null) {
-                List<SearchData> searchDataList = searcher.searchWord(query);
+                List<SearchData> searchDataList = searchService.getSearchData(session, query, pageDao.getPages());
                 if (searchDataList != null && searchDataList.size() > ZERO) {
                     int currentPage = 1;
                     if (page != null && page > ZERO) {
@@ -71,7 +74,7 @@ public class MainController {
                     int noOfRecords = searchDataList.size();
                     int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
 
-                    List<SearchData> pageData = searchService.getSearchData(searchDataList, offset, recordsPerPage);
+                    List<SearchData> pageData = searchService.getSearchDataPerPage(searchDataList, offset, recordsPerPage);
 
                     model.addAttribute(SEARCH_DATA, pageData);
                     model.addAttribute(NO_OF_PAGES, noOfPages);

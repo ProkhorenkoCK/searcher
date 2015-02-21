@@ -26,9 +26,7 @@ import static com.searcher.util.Constants.*;
 @Component
 public class Searcher {
 
-    private ConcurrentHashMap<String ,Page> pages = new ConcurrentHashMap<>();
-
-    public List<SearchData> searchWord(String word) throws IOException, InterruptedException {
+    public List<SearchData> searchWord(String word, ConcurrentHashMap<String, Page> pages) throws IOException, InterruptedException {
         StandardAnalyzer analyzer = new StandardAnalyzer();
         Directory directory = recordPagesToDirectory(analyzer, pages);
         Query q = null;
@@ -93,13 +91,5 @@ public class Searcher {
         String title = doc.getField(TITLE).stringValue();
 
         return new SearchData(url, title, score);
-    }
-
-    public ConcurrentHashMap<String ,Page> getPages() {
-        return pages;
-    }
-
-    public void setPages(ConcurrentHashMap<String ,Page> pages) {
-        this.pages = pages;
     }
 }
