@@ -15,8 +15,9 @@
 </form>
 <c:forEach var="page" items="${searchData}">
     <div>
-        <span link="${page.url}" class="title link text">${page.title}</span>
-        <span link="${page.url}" class="url link text">${page.url}</span>
+        <span link="${page.url}" class="title link textSetting">${page.title}</span>
+        <span link="${page.url}" class="url link textSetting">${page.url}</span>
+        <span link="${page.url}" class="text link">${page.text}</span>
     </div>
 </c:forEach>
 

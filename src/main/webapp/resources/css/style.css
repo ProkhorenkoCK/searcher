@@ -9,6 +9,9 @@ span {
     display: inline-block;
 }
 .url {
+    font-style: normal;
+    line-height: 16px;
+    font-size: 14px;
     color: #006621;
 }
 .title {
@@ -20,10 +23,19 @@ span {
 }
 .text {
     max-width: 320px;
+    display: inline-block;
+    font-size: small;
+    color: #545454;
+    line-height: 1.4;
+    font-family: arial,sans-serif;
+}
+.textSetting {
+    max-width: 320px;
     width: 100%;
     font-style: normal;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: arial,sans-serif;
     cursor: pointer;
 }

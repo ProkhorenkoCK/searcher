@@ -16,6 +16,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.*;
@@ -89,7 +90,9 @@ public class Searcher {
 
         String url = doc.getField(URL).stringValue();
         String title = doc.getField(TITLE).stringValue();
-
-        return new SearchData(url, title, score);
+        String text = doc.getField(TITLE).stringValue();
+        int textLength = text.length() > TEXT_LENGTH ? TEXT_LENGTH : text.length();
+        text = text.substring(ZERO, textLength);
+        return new SearchData(url, title, score, text);
     }
 }

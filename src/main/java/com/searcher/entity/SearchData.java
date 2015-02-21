@@ -3,12 +3,14 @@ package com.searcher.entity;
 public class SearchData {
     private String url;
     private String title;
+    private String text;
     private float score;
 
-    public SearchData(String url, String title, float score) {
+    public SearchData(String url, String title, float score, String text) {
         this.url = url;
         this.title = title;
         this.score = score;
+        this.text = text;
     }
 
     public String getUrl() {
@@ -35,12 +37,11 @@ public class SearchData {
         this.score = score;
     }
 
-    @Override
-    public String toString() {
-        return "SearchData{" +
-                "url='" + url + '\'' +
-                ", title='" + title + '\'' +
-                ", score=" + score +
-                '}';
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }
