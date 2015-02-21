@@ -23,6 +23,8 @@ public class MainController {
 
     @Autowired
     private SearchService searchService;
+    @Autowired
+    private Searcher searcher;
 
     @RequestMapping(method = RequestMethod.GET)
     public String getSearchPage() {
@@ -58,7 +60,19 @@ public class MainController {
                              HttpSession session) {
         try {
             if (query != null && query.trim().length() > 0) {
-                List<SearchData> searchDataList = searchService.getSearchData(session, query, searchService.getPages());
+                List<SearchData> searchDataList;
+                String lastQuery = (String)session.getAttribute(LAST_QUERY);
+                if (lastQuery == null) {
+                    searchDataList = searcher.searchWord(query, searchService.getPages());
+                    addSearchDataAndQueryToSession(session, searchDataList, query);
+                } else {
+                    if (lastQuery.equals(query)) {
+                        searchDataList = (List<SearchData>)session.getAttribute(SEARCH_DATA);
+                    } else {
+                        searchDataList = searcher.searchWord(query, searchService.getPages());
+                        addSearchDataAndQueryToSession(session, searchDataList, query);
+                    }
+                }
                 if (searchDataList != null && searchDataList.size() > ZERO) {
                    searchService.addDataToModel(searchDataList, page, model);
                 }
@@ -69,5 +83,10 @@ public class MainController {
             System.out.println(e.getClass() + " " + e.getMessage());
         }
         return "search";
+    }
+
+    private void addSearchDataAndQueryToSession(HttpSession session, List<SearchData> searchDataList, String query) {
+        session.setAttribute(SEARCH_DATA, searchDataList);
+        session.setAttribute(LAST_QUERY, query);
     }
 }
