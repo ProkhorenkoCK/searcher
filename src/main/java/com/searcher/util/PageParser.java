@@ -12,12 +12,24 @@ import static com.searcher.util.Constants.*;
 
 public class PageParser {
 
+    /**
+     * Method adds height score text and plain text to page
+     *
+     * @param page
+     * @return
+     */
     public Page updateInstancePage(Page page) {
         page.setHeightScoreText(getHeightScoreText(page.getBody()).toString());
         page.setAllText(page.getBody().text());
         return page;
     }
 
+    /**
+     * Method parses body elements and gets height score text
+     *
+     * @param body
+     * @return
+     */
     private StringBuilder getHeightScoreText(Element body) {
         StringBuilder sb = new StringBuilder();
         List<Element> bodyElements = body.getAllElements();
