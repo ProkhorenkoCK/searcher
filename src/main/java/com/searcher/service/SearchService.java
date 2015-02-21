@@ -23,15 +23,11 @@ public class SearchService {
     private PageDao pageDao;
 
     public List<SearchData> getSearchDataPerPage(List<SearchData> dataList, int offset, int noOfRecords) {
-        List<SearchData> searchDataList = new ArrayList<>();
         int range = offset + noOfRecords;
         if (range > dataList.size()) {
             range = dataList.size();
         }
-        for (int i = offset; i < range; i++) {
-            searchDataList.add(dataList.get(i));
-        }
-        return searchDataList;
+        return dataList.subList(offset, range);
     }
 
     public int getCorrectOffset(int dataSize, int currentOffset, int recordsPerPage) {
