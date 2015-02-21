@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.regex.Pattern;
 
 import static com.searcher.util.Constants.*;
 
@@ -47,15 +48,14 @@ public class IndexCrawler {
 
     private Set<String> getLinks(Document document) {
         Set<String> links = new HashSet<>();
-        int countLink = ZERO;
         for (Element linkElement : document.select("a")) {
-            if (countLink == MAX_LINKS_PER_PAGE) {
+            if (links.size() == MAX_LINKS_PER_PAGE) {
                 return links;
             }
             String link = linkElement.absUrl("href");
             if (!link.contains("#") && link.length() > 0) {
-                countLink++;
-                links.add(link);
+                String correctLink = link.split("\\?")[0]; //link without query parameters
+                links.add(correctLink);
             }
         }
         return links;
