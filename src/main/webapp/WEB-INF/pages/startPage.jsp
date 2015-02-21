@@ -10,7 +10,7 @@
 <body>
 <form action="/search" method="get">
     <input type="text" name="q" placeholder="Enter your search query"/>
-    <input id="submit" type="submit"/>
+    <input id="submit" type="submit" value="Search"/>
 </form>
 <script src="<c:url value="/resources/js/startPage.js" />"></script>
 </body>
