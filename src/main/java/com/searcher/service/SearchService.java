@@ -33,8 +33,9 @@ public class SearchService {
     public int getCorrectOffset(int dataSize, int currentOffset, int recordsPerPage) {
         int range = currentOffset + recordsPerPage;
         boolean isCorrectShift = dataSize >= range;
-        if (!isCorrectShift && (dataSize >= recordsPerPage)) {
+        if (!isCorrectShift) {
             currentOffset = dataSize - recordsPerPage;
+            currentOffset = currentOffset < ZERO ? ZERO : currentOffset;
         }
         return currentOffset;
     }
