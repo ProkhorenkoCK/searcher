@@ -3,16 +3,17 @@ package com.searcher.app;
 import com.searcher.entity.Page;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class IndexTask extends Thread {
 
     private String url;
     private int depth;
-    private Set<Page> pages;
+    private ConcurrentHashMap<String, Page> pages;
     private Set<String> indexedLink;
     private IndexCrawler crawler;
 
-    public IndexTask(IndexCrawler crawler, String url, int depth, Set<Page> pageSet, Set<String> indexedLink) throws InterruptedException {
+    public IndexTask(IndexCrawler crawler, String url, int depth, ConcurrentHashMap<String, Page> pageSet, Set<String> indexedLink) throws InterruptedException {
         this.url = url;
         this.depth = depth;
         this.pages = pageSet;

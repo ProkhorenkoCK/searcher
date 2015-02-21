@@ -26,7 +26,7 @@ import static com.searcher.util.Constants.*;
 @Component
 public class Searcher {
 
-    private Set<Page> pages = Collections.newSetFromMap(new ConcurrentHashMap<Page, Boolean>());
+    private ConcurrentHashMap<String ,Page> pages = new ConcurrentHashMap<>();
 
     public List<SearchData> searchWord(String word) throws IOException, InterruptedException {
         StandardAnalyzer analyzer = new StandardAnalyzer();
@@ -44,11 +44,11 @@ public class Searcher {
         throw new IOException("Query is null");
     }
 
-    private Directory recordPagesToDirectory(Analyzer analyzer, Set<Page> pages) {
+    private Directory recordPagesToDirectory(Analyzer analyzer, ConcurrentHashMap<String ,Page> pages) {
         Directory directory = new RAMDirectory();
         IndexWriterConfig config = new IndexWriterConfig(Version.LATEST, analyzer);
         try (IndexWriter w = new IndexWriter(directory, config)) {
-            for (Page page : pages) {
+            for (Page page : pages.values()) {
                 addDataToDoc(w, page);
             }
         } catch (IOException e) {
@@ -95,11 +95,11 @@ public class Searcher {
         return new SearchData(url, title, score);
     }
 
-    public Set<Page> getPages() {
+    public ConcurrentHashMap<String ,Page> getPages() {
         return pages;
     }
 
-    public void setPages(Set<Page> pages) {
+    public void setPages(ConcurrentHashMap<String ,Page> pages) {
         this.pages = pages;
     }
 }

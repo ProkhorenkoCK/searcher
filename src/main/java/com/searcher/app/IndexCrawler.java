@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import static com.searcher.util.Constants.*;
 
@@ -21,12 +19,12 @@ public class IndexCrawler {
     private PageParser pageParser = new PageParser();
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-    public void indexPage(String url, int depth, Set<Page> pages) throws IOException, InterruptedException {
+    public void indexPage(String url, int depth, ConcurrentHashMap<String, Page> pages) throws IOException, InterruptedException {
         Set<String> indexedLink = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
         recursiveIndex(url, depth, pages, indexedLink);
     }
 
-    public void recursiveIndex(String url, int depth, Set<Page> pages, Set<String> indexedLink) throws InterruptedException {
+    public void recursiveIndex(String url, int depth, ConcurrentHashMap<String, Page> pages, Set<String> indexedLink) throws InterruptedException {
         if (depth < ZERO) return;
         if (!indexedLink.add(url)) return;
         Document document = null;
@@ -40,18 +38,23 @@ public class IndexCrawler {
             System.out.println("Not valid URL: " + url);
             return;
         }
-        pages.add(updateFieldOfPage(new Page(document)));
-        for (String link : getAllLink(document)) {
+        pages.put(url, updateFieldOfPage(new Page(document)));
+        for (String link : getLinks(document)) {
             IndexTask task = new IndexTask(this, link, depth - 1, pages, indexedLink);
             executorService.execute(task);
         }
     }
 
-    private Set<String> getAllLink(Document document) {
+    private Set<String> getLinks(Document document) {
         Set<String> links = new HashSet<>();
+        int countLink = ZERO;
         for (Element linkElement : document.select("a")) {
+            if (countLink == MAX_LINKS_PER_PAGE) {
+                return links;
+            }
             String link = linkElement.absUrl("href");
             if (!link.contains("#") && link.length() > 0) {
+                countLink++;
                 links.add(link);
             }
         }
