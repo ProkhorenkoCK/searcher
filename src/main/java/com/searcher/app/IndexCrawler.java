@@ -22,12 +22,12 @@ public class IndexCrawler {
 
     public void indexPage(String url, int depth, ConcurrentHashMap<String, Page> pages) throws IOException, InterruptedException {
         Set<String> indexedLink = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+        indexedLink.add(url);
         recursiveIndex(url, depth, pages, indexedLink);
     }
 
     public void recursiveIndex(String url, int depth, ConcurrentHashMap<String, Page> pages, Set<String> indexedLink) throws InterruptedException {
         if (depth < ZERO) return;
-        if (!indexedLink.add(url)) return;
         Document document = null;
         try {
             System.out.println("Indexing link: " + url);
@@ -41,8 +41,11 @@ public class IndexCrawler {
         }
         pages.put(url, updateFieldOfPage(new Page(document)));
         for (String link : getLinks(document)) {
-            IndexTask task = new IndexTask(this, link, depth - 1, pages, indexedLink);
-            executorService.execute(task);
+            boolean isNotIndexedLink = indexedLink.add(link);
+            if (isNotIndexedLink) {
+                IndexTask task = new IndexTask(this, link, depth - 1, pages, indexedLink);
+                executorService.execute(task);
+            }
         }
     }
 
