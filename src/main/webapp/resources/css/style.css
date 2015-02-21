@@ -1,0 +1,28 @@
+div {
+    display: block;
+    padding-bottom: 10px;
+}
+span {
+    display: block;
+}
+.pagination span {
+    display: inline-block;
+}
+.url {
+    color: #006621;
+}
+.title {
+    color: #1a0dab;
+}
+.currentPage {
+    font-weight: 600;
+}
+.text {
+    max-width: 320px;
+    width: 100%;
+    font-style: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
