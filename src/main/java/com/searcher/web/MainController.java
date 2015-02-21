@@ -22,63 +22,45 @@ import static com.searcher.util.Constants.*;
 public class MainController {
 
     @Autowired
-    private PageDao pageDao;
-    @Autowired
     private SearchService searchService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String getSearchPage(HttpSession session) {
-
+    public String getSearchPage() {
         return "startPage";
     }
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public String getIndexPage(HttpServletRequest request, HttpSession session) {
-
+    public String getIndexPage() {
         return "index";
     }
 
     @RequestMapping(value = "/index", method = RequestMethod.POST)
-    public String search(@RequestParam("q") String url,
+    public String search(@RequestParam("url") String url,
                          @RequestParam("depth") int depth) throws IOException {
         IndexCrawler crawler = new IndexCrawler();
         try {
             if (depth >= ZERO) {
-                crawler.indexPage(url, depth, pageDao.getPages());
+                crawler.indexPage(url, depth, searchService.getPages());
             } else {
                 System.out.println("WARN: depth is less zero " + depth);
             }
         } catch (InterruptedException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        return "search";
+        return "redirect:/search";
     }
 
-    @RequestMapping(value = "/search",  method = { RequestMethod.GET, RequestMethod.POST })
+    @RequestMapping(value = "/search", method = {RequestMethod.GET, RequestMethod.POST})
     @SuppressWarnings("unchecked")
     public String searchData(@RequestParam(value = "q", required = false) String query,
                              @RequestParam(value = "page", required = false) Integer page,
                              Model model,
                              HttpSession session) {
         try {
-            if (query != null) {
-                List<SearchData> searchDataList = searchService.getSearchData(session, query, pageDao.getPages());
+            if (query != null && query.trim().length() > 0) {
+                List<SearchData> searchDataList = searchService.getSearchData(session, query, searchService.getPages());
                 if (searchDataList != null && searchDataList.size() > ZERO) {
-                    int currentPage = 1;
-                    if (page != null && page > ZERO) {
-                        currentPage = page;
-                    }
-                    int recordsPerPage = RECORDS_PER_PAGE;
-                    int offset = (currentPage - 1) * recordsPerPage;
-                    offset = searchService.getCorrectOffset(searchDataList.size(), offset, recordsPerPage);
-                    int noOfRecords = searchDataList.size();
-                    int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
-
-                    List<SearchData> pageData = searchService.getSearchDataPerPage(searchDataList, offset, recordsPerPage);
-
-                    model.addAttribute(SEARCH_DATA, pageData);
-                    model.addAttribute(NO_OF_PAGES, noOfPages);
-                    model.addAttribute(CURRENT_PAGE, currentPage);
+                   searchService.addDataToModel(searchDataList, page, model);
                 }
             }
         } catch (IOException e) {

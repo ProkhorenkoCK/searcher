@@ -6,6 +6,7 @@ import com.searcher.entity.Page;
 import com.searcher.entity.SearchData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -13,8 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.searcher.util.Constants.LAST_QUERY;
-import static com.searcher.util.Constants.SEARCH_DATA;
+import static com.searcher.util.Constants.*;
 
 @Service
 public class SearchService {
@@ -63,8 +63,30 @@ public class SearchService {
         return currentOffset;
     }
 
+    public ConcurrentHashMap<String, Page> getPages() {
+        return pageDao.getPages();
+    }
+
     private void addSearchDataAndQueryToSession(HttpSession session, List<SearchData> searchDataList, String query) {
         session.setAttribute(SEARCH_DATA, searchDataList);
         session.setAttribute(LAST_QUERY, query);
+    }
+
+    public void addDataToModel(List<SearchData> searchDataList, Integer page, Model model) {
+        int currentPage = 1;
+        if (page != null && page > ZERO) {
+            currentPage = page;
+        }
+        int recordsPerPage = RECORDS_PER_PAGE;
+        int offset = (currentPage - 1) * recordsPerPage;
+        offset = getCorrectOffset(searchDataList.size(), offset, recordsPerPage);
+        int noOfRecords = searchDataList.size();
+        int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
+
+        List<SearchData> pageData = getSearchDataPerPage(searchDataList, offset, recordsPerPage);
+
+        model.addAttribute(SEARCH_DATA, pageData);
+        model.addAttribute(NO_OF_PAGES, noOfPages);
+        model.addAttribute(CURRENT_PAGE, currentPage);
     }
 }
