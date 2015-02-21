@@ -1,6 +1,6 @@
 div {
     display: block;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
 }
 span {
     display: block;
@@ -12,6 +12,7 @@ span {
     color: #006621;
 }
 .title {
+    font-size: 18px;
     color: #1a0dab;
 }
 .currentPage {
