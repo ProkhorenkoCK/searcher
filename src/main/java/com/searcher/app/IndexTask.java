@@ -3,30 +3,25 @@ package com.searcher.app;
 import com.searcher.entity.Page;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class IndexTask extends Thread {
+public class IndexTask implements Runnable {
 
     private String url;
     private int depth;
-    private ConcurrentHashMap<String, Page> pages;
+    private Set<Page> pages;
     private Set<String> indexedLink;
-    private IndexCrawler crawler;
+    private Indexer indexer;
 
-    public IndexTask(IndexCrawler crawler, String url, int depth, ConcurrentHashMap<String, Page> pageSet, Set<String> indexedLink) throws InterruptedException {
+    public IndexTask(Indexer indexer, String url, int depth, Set<Page> pageSet, Set<String> indexedLink) {
         this.url = url;
         this.depth = depth;
         this.pages = pageSet;
-        this.crawler = crawler;
+        this.indexer = indexer;
         this.indexedLink = indexedLink;
     }
 
     @Override
     public void run() {
-        try {
-            crawler.recursiveIndex(url, depth, pages, indexedLink);
-        } catch (InterruptedException e) {
-            System.out.println("Error: " + e);
-        }
+        indexer.recursiveIndex(url, depth, pages, indexedLink);
     }
 }

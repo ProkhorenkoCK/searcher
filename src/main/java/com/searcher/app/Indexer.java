@@ -1,11 +1,17 @@
 package com.searcher.app;
 
 import com.searcher.entity.Page;
-import com.searcher.util.PageParser;
+import com.searcher.service.PageService;
+import com.searcher.service.RecordService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,19 +20,28 @@ import java.util.concurrent.*;
 
 import static com.searcher.util.Constants.*;
 
-public class IndexCrawler {
+@Service
+public class Indexer {
 
-    private PageParser pageParser = new PageParser();
+    @Autowired
+    private PageService pageService;
+    @Autowired
+    private RecordService recordService;
+
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-    public void indexPage(String url, int depth, ConcurrentHashMap<String, Page> pages) throws IOException, InterruptedException {
-        Set<String> indexedLink = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-        indexedLink.add(url);
-        recursiveIndex(url, depth, pages, indexedLink);
+    public void indexPage(String url, int depth) {
+        Set<String> indexedLinks = new HashSet<>();
+        Set<Page> pages = new HashSet<>();
+        indexedLinks.add(url);
+        executorService.execute(new IndexTask(this, url, depth, pages, indexedLinks));
     }
 
-    public void recursiveIndex(String url, int depth, ConcurrentHashMap<String, Page> pages, Set<String> indexedLink) throws InterruptedException {
-        if (depth < ZERO) return;
+    public void recursiveIndex(String url, int depth, Set<Page> pages, Set<String> indexedLink) {
+        if (depth < ZERO) {
+            recordService.recordPagesToDirectory(pages);
+            return;
+        }
         Document document = null;
         try {
             System.out.println("Indexing link: " + url);
@@ -38,12 +53,11 @@ public class IndexCrawler {
             System.out.println("Not valid URL: " + url);
             return;
         }
-        pages.put(url, updateFieldOfPage(new Page(document)));
+        pages.add(pageService.createPageBean(document));
         for (String link : getLinks(document)) {
             boolean isNotIndexedLink = indexedLink.add(link);
             if (isNotIndexedLink) {
-                IndexTask task = new IndexTask(this, link, depth - 1, pages, indexedLink);
-                executorService.execute(task);
+                recursiveIndex(link, depth - 1, pages, indexedLink);
             }
         }
     }
@@ -51,19 +65,12 @@ public class IndexCrawler {
     private Set<String> getLinks(Document document) {
         Set<String> links = new HashSet<>();
         for (Element linkElement : document.select("a")) {
-            if (links.size() == MAX_LINKS_PER_PAGE) {
-                return links;
-            }
             String link = linkElement.absUrl("href");
-            if (!link.contains("#") && link.length() > 0) {
-                String correctLink = link.split("\\?")[0]; //link without query parameters
+            if (link.length() > 0) {
+                String correctLink = link.split("\\?|#")[0]; //link without query parameters and hash tag
                 links.add(correctLink);
             }
         }
         return links;
-    }
-
-    private Page updateFieldOfPage(Page page) {
-        return pageParser.updateInstancePage(page);
     }
 }

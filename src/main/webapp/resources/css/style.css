@@ -28,6 +28,7 @@ span {
     color: #545454;
     line-height: 1.4;
     font-family: arial,sans-serif;
+    cursor: pointer;
 }
 .textSetting {
     max-width: 320px;

@@ -3,10 +3,9 @@ package com.searcher.util;
 public final class Constants {
     public static final int ZERO = 0;
     public static final int NUMBER_OF_THREADS = 5;
-    public static final int MAX_LINKS_PER_PAGE = 100;
     public static final int HITS_PER_PAGE = 100;
     public static final int RECORDS_PER_PAGE = 10;
-    public static final int TEXT_LENGTH = 250;
+    public static final int TEXT_LENGTH = 300;
     public static final String TEXT = "text";
     public static final String URL = "url";
     public static final String TITLE = "title";
