@@ -6,7 +6,6 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.Directory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +21,8 @@ public class RecordService {
 
     public void recordPageToDirectory(Page page) {
         if (page != null) {
-            //TODO investigate exception "this IndexWriter is closed"
-            try (IndexWriter w = writer) {
-                addDataToDoc(w, page);
+            try {
+                addDataToDoc(writer, page);
             } catch (IOException e) {
                 System.out.println("Record error: " + e.getMessage());
             }
