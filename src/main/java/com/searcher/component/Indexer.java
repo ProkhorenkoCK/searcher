@@ -52,7 +52,7 @@ public class Indexer {
         for (String link : getLinks(document)) {
             boolean isNotIndexedLink = indexedLinks.add(link);
             if (isNotIndexedLink) {
-                executorService.execute(new IndexTask(this, url, depth - 1, indexedLinks));
+                executorService.execute(new IndexTask(this, link, depth - 1, indexedLinks));
             }
         }
     }
