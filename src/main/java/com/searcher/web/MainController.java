@@ -1,6 +1,6 @@
 package com.searcher.web;
 
-import com.searcher.app.Indexer;
+import com.searcher.component.Indexer;
 import com.searcher.component.Searcher;
 import com.searcher.entity.SearchData;
 import com.searcher.service.SearchService;
